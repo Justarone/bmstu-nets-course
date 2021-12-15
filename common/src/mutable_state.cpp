@@ -3,6 +3,8 @@
 
 std::size_t MutableState::getCurpos() const { return curpos; }
 
+void MutableState::setCurpos(const std::size_t new_curpos) { curpos = std::max(new_curpos, data.size()); }
+
 void MutableState::printLine(const std::size_t yoffset) const {
     move(yoffset, 0);
     clrtoeol();

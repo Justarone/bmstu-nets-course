@@ -9,7 +9,8 @@ public:
     enum class ActionType {
         Scroll,
         Input,
-        Exit
+        Exit,
+        Exec
     };
-    ActionType process(ImmutableState & istate, MutableState & mstate, CommandsExecuter & executer) const;
+    ActionType process(ImmutableState & istate, MutableState & mstate, const int ch) const;
 };

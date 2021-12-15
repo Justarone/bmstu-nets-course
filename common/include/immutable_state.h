@@ -3,6 +3,7 @@
 #include <numeric>
 #include <vector>
 #include <limits>
+#include <boost/serialization/access.hpp>
 
 class ImmutableState {
     std::size_t startline = 0;
@@ -16,4 +17,10 @@ public:
     void moveDown(const std::size_t diff = 1);
     std::size_t linesToShow();
     void setLinesToShow(const std::size_t lines);
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & data;
+    }
 };

@@ -1,7 +1,6 @@
 #include "char_processor.h"
 
-CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState & imstate, MutableState & mstate, CommandsExecuter & executer) const {
-    int ch = getch();
+CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState & imstate, MutableState & mstate, const int ch) const {
     bool input_event = false;
 
     switch (ch)
@@ -29,12 +28,7 @@ CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState & imstat
             input_event = true;
             break;
         case '\n': {
-            auto command = mstate.getData();
-            auto res = executer.execute(command);
-            imstate.insertLine("> " + command);
-            for (auto & s : res)
-                imstate.insertLine(s);
-            input_event = true;
+            return ActionType::Exec;
             break;
         }
         default:
