@@ -3,43 +3,57 @@
 #include <sstream>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <future>
+#include <mutex>
 
 #include "mutable_state.h"
 #include "immutable_state.h"
 #include "executer.h"
 #include "char_processor.h"
 #include "printer.h"
+#include "message.h"
+#include "helpers.h"
+#include "client.h"
+#include "message_processor.h"
 
 int main() {
-    auto handler = (struct sigaction){SIG_IGN};
-    sigaction(SIGPIPE, &handler, NULL);
+    Client client("127.0.0.1", 3000);
 
-    ImmutableState imstate;
-    MutableState mstate;
+    std::shared_mutex states_mutex, printer_mutex;
+    auto [imstate, mstate] = client.requestStates();
 
     CursesPrinter printer;
-    CursesChProcessor processor;
-    BoostExecuter executer;
+    //CursesChProcessor processor;
+    MessageProcessor msg_processor;
 
     initscr();
     noecho();
     keypad(stdscr, true);
 
+    const auto input_proc_task = [&]() {
+        while (true) {
+            int ch = getch();
+            client.sendMessage(ch, mstate.getCurpos());
+        }
+    };
+
+    auto fut = std::async(std::launch::async, input_proc_task);
+
     printer.printAll(imstate, mstate);
 
     while (true) {
-        int ch = getch();
-        auto action_type = processor.process(imstate, mstate, ch);
-        if (action_type == CursesChProcessor::ActionType::Exit)
-            break;
-        else if (action_type == CursesChProcessor::ActionType::Exec) {
-            auto command = mstate.getData();
-            auto res = executer.execute(command);
-            imstate.insertLine("> " + command);
-            for (auto & s : res)
-                imstate.insertLine(s);
+        auto msg = client.recvMessage();
+        {
+            std::unique_lock l(states_mutex);
+            msg_processor(imstate, mstate, msg);
         }
-        printer.printAll(imstate, mstate, action_type);
+        {
+            std::shared_lock l(states_mutex);
+            std::unique_lock lp(printer_mutex);
+            printer.printAll(imstate, mstate, CursesChProcessor::ActionType::Input);
+        }
     }
 
     endwin();

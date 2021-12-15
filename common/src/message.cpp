@@ -1,4 +1,5 @@
 #include "message.h"
+#include "helpers.h"
 
 template <typename Archive>
 void Message::serialize(Archive & ar, const unsigned int version) {
@@ -17,21 +18,14 @@ Message::Message(Message::Type type, const std::string && s) : type(type), data(
 std::string Message::buildPacket() const {
     std::ostringstream outs;
 
-    // write default first
-    outs << std::uint32_t();
     boost::archive::text_oarchive out(outs);
     out << *this;
     auto res = outs.str();
 
-    // convert size to string
-    auto size = res.size() - sizeof(std::uint32_t);
-    std::ostringstream sizeout;
-    sizeout << size;
-    //
-    // rewrite default
-    res.replace(0, sizeof(std::uint32_t), sizeout.str());
-
-    return res;
+    char buf[4];
+    size_to_char(res.size(), buf);
+    std::string prefix = { buf, 4 };
+    return prefix + res;
 }
 
 template <typename Archive>
@@ -46,7 +40,9 @@ AddCharMessage::AddCharMessage(const std::string & s) {
     in >> *this;
 }
 
-Message AddCharMessage::buildMessage() {
+AddCharMessage::AddCharMessage(const int data, const std::size_t pos) : pos(pos), data(data) {}
+
+Message AddCharMessage::buildMessage() const {
     std::ostringstream outs;
     boost::archive::text_oarchive out(outs);
     out << *this;
@@ -66,7 +62,7 @@ DiffMessage::DiffMessage(const std::string & s) {
     in >> *this;
 }
 
-Message DiffMessage::buildMessage() {
+Message DiffMessage::buildMessage() const {
     std::ostringstream outs;
     boost::archive::text_oarchive out(outs);
     out << *this;
@@ -85,11 +81,11 @@ GetAllMessage::GetAllMessage(const std::string & s) {
     in >> *this;
 }
 
-Message GetAllMessage::buildMessage() {
+Message GetAllMessage::buildMessage() const {
     std::ostringstream outs;
     boost::archive::text_oarchive out(outs);
     out << *this;
-    return Message { Message::Type::diff, outs.str() };
+    return Message { Message::Type::getAll, outs.str() };
 }
 
 GetAllMessage::GetAllMessage(const ImmutableState & imstate, const MutableState & mstate) : imstate(imstate), mstate(mstate) {}

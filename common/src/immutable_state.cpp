@@ -19,6 +19,11 @@ void ImmutableState::insertLine(const std::string & s) {
     data.push_back(s);
 }
 
+void ImmutableState::insertLines(std::vector<std::string> && vs) {
+    for (std::size_t i = 0; i < vs.size(); i++)
+        data.push_back(std::move(vs[i]));
+}
+
 void ImmutableState::moveUp(const std::size_t diff) {
     startline = diff > startline ? 0 : startline - diff;
 }

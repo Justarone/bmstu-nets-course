@@ -1,6 +1,7 @@
 #include "server.h"
 #include <chrono>
 #include <cstdint>
+#include "helpers.h"
 
 std::ostream & operator<<(std::ostream & out, const std::vector<char> & s) {
     for (const auto & c : s)
@@ -43,14 +44,16 @@ void Server::processNewConnection() {
 }
 
 bool Server::processRawRequest(const int fd) {
-    std::uint32_t msg_size;
-    std::size_t bytes = recv(fd, &msg_size, sizeof(msg_size), 0);
+    char buf[4];
+    std::size_t bytes = recv(fd, buf, sizeof(buf), 0);
 
-    if (bytes < sizeof(msg_size)) {
+    if (bytes < sizeof(buf)) {
         std::cout << "Disconnect client (with fd = " << fd << "): Client closed connection\n";
         close(fd);
         return false;
     }
+
+    std::uint32_t msg_size = char_to_size(buf);
 
     std::vector<char> msg(msg_size);
     std::uint32_t bytes_read = 0;
