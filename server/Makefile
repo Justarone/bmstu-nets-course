@@ -1,22 +1,32 @@
 CC = g++
-BINARIES = $(patsubst src/%.cpp,bin/%.o, $(wildcard src/*.cpp)) $(patsubst ../common/src/%.cpp,bin/%.o, $(wildcard ../common/src/*.cpp)) 
+
+TARGET = server.out
+
+OUT_DIR = bin/
+BINARIES = $(patsubst src/%.cpp,${OUT_DIR}%.o, $(wildcard src/*.cpp)) $(patsubst ../common/src/%.cpp,${OUT_DIR}%.o, $(wildcard ../common/src/*.cpp)) 
 # Remove -g if not in debug mode
 LIBS_FLAGS = -I../common/include -lstdc++fs -pthread -lncurses -lboost_filesystem -lboost_system -lboost_serialization
 COMPILE_FLAGS = -Wall -g -Werror -I./include -std=c++17
 
-.PHONY: all test clean
-all: main
+MKDIR_P = mkdir -p
 
-main: $(BINARIES)
+all: directory ../${TARGET}
+
+directory: ${OUT_DIR}
+
+${OUT_DIR}:
+	${MKDIR_P} ${OUT_DIR}
+
+../${TARGET}: $(BINARIES)
 	$(CC) $^ -o $@ $(LIBS_FLAGS) 
 
-bin/%.o: src/%.cpp
-	mkdir -p bin
+${OUT_DIR}%.o: src/%.cpp
 	$(CC) -c -o $@ $(LIBS_FLAGS) $(COMPILE_FLAGS) $^
 
-bin/%.o: ../common/src/%.cpp
-	mkdir -p bin
+${OUT_DIR}%.o: ../common/src/%.cpp
 	$(CC) -c -o $@ $(LIBS_FLAGS) $(COMPILE_FLAGS) $^
 
 clean:
-	rm -rf bin/ main
+	rm -rf ${OUT_DIR} main
+
+.PHONY: all test clean directory
