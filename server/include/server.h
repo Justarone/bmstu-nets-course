@@ -33,6 +33,6 @@ protected:
     static void listen(const int listen_fd);
     int buildFdSet(fd_set& readfds);
     void processNewConnection();
-    bool processRawRequest(const int fd);
+    void processRawRequest(const int fd);
     void scheduleClientRequests(fd_set& readfds);
 };

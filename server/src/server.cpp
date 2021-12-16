@@ -17,7 +17,7 @@ Server::Server(const int port, Server::TRequestHandler handleRequest)
     struct sockaddr_in addr = Server::buildAddr(port);
     Server::bind(listen_socket_fd, addr);
     Server::listen(listen_socket_fd);
-    std::cout << "Server is running on " << inet_ntoa(addr.sin_addr) << ':'
+    std::cout << "server is running on: " << inet_ntoa(addr.sin_addr) << ':'
               << ntohs(addr.sin_port) << '\n';
 }
 
@@ -44,19 +44,18 @@ void Server::processNewConnection()
         perror("accept call error");
         throw std::runtime_error("accept call error");
     }
-    printf("New connect from %s:%d\n", inet_ntoa(addr.sin_addr), addr.sin_port);
+
     client_fds.insert(client_fd);
+    std::cout << "A mate has joined (" << inet_ntoa(addr.sin_addr) << ":" << addr.sin_port << ") --- " << client_fds.size() << " client currently connected" << std::endl;
 }
 
-bool Server::processRawRequest(const int fd)
+void Server::processRawRequest(const int fd)
 {
     char buf[4];
     std::size_t bytes = recv(fd, buf, sizeof(buf), 0);
 
     if (bytes < sizeof(buf)) {
-        std::cout << "Disconnect client (with fd = " << fd << "): Client closed connection\n";
-        close(fd);
-        return false;
+        throw std::runtime_error("client closed connection");
     }
 
     std::uint32_t msg_size = char_to_size(buf);
@@ -68,18 +67,16 @@ bool Server::processRawRequest(const int fd)
         bytes = recv(fd, msg.data() + bytes_read, msg_size - bytes_read, 0);
         bytes_read += bytes;
         if (!bytes) {
-            std::cout << "Disconnect client (with fd = " << fd << "): wrong message\n";
-            close(fd);
-            return false;
+            throw std::runtime_error("wrong message");
         }
     }
 
     auto res = handleRequest(msg, fd, client_fds);
     if (!res) {
-        std::cout << "Disconnect client (with fd = " << fd << "): handler initiative\n";
-        close(fd);
+        throw std::runtime_error("handler initiative");
     }
-    return res;
+
+    return;
 }
 
 void Server::start_processing()
@@ -102,14 +99,15 @@ void Server::scheduleClientRequests(fd_set& readfds)
 {
     auto it = client_fds.begin();
     while (it != client_fds.end()) {
-        auto& fd = *it;
+        auto fd = *it;
         if (fd && FD_ISSET(fd, &readfds)) {
-            auto res = processRawRequest(fd);
-            if (res) {
+            try {
+                processRawRequest(fd);
                 it++;
-            } else {
+            } catch (const std::exception& e) {
                 close(fd);
                 it = client_fds.erase(it);
+                std::cout << "A mate has left (fd = " << fd << ", " << e.what() << ") --- " << client_fds.size() << " client currently connected" << std::endl;
             }
         } else
             it++;
