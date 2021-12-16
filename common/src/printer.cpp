@@ -8,6 +8,7 @@ void CursesPrinter::printAll(ImmutableState & istate, const MutableState & mstat
         istate.setLinesToShow(lines - 1);
     auto printed = istate.printLines(lines);
 
+    // убрать, если нужен дебаг
     for (std::size_t i = printed + 1; i < lines; i++) {
         move(i, 0);
         clrtoeol();

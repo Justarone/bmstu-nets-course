@@ -27,11 +27,11 @@ int main() {
     CursesChProcessor processor;
     MessageProcessor msg_processor;
 
-    printer.printAll(imstate, mstate);
-
     initscr();
     noecho();
     keypad(stdscr, true);
+
+    printer.printAll(imstate, mstate);
 
     const auto input_proc_task = [&]() {
         while (true) {
@@ -45,12 +45,14 @@ int main() {
                 pos = mstate.getCurpos();
             }
 
-            if (action_type == CursesChProcessor::ActionType::Input)
+            std::unique_lock lp(printer_mutex);
+            std::shared_lock l(states_mutex);
+            if (action_type == CursesChProcessor::ActionType::Input) {
                 client.sendMessage(ch, pos);
+                printer.printAll(imstate, mstate, true);
+            }
             else if (action_type == CursesChProcessor::ActionType::Scroll)
             {
-                std::unique_lock lp(printer_mutex);
-                std::shared_lock l(states_mutex);
                 printer.printAll(imstate, mstate, false);
             }
         }
@@ -67,7 +69,7 @@ int main() {
         {
             std::unique_lock lp(printer_mutex);
             std::shared_lock l(states_mutex);
-            printer.printAll(imstate, mstate, true);
+            printer.printAll(imstate, mstate, false);
         }
     }
 

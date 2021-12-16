@@ -14,4 +14,6 @@ public:
         Exec
     };
     ActionType process(ImmutableState & istate, MutableState & mstate, const int ch) const;
+private:
+    static bool additionalFilter(const int ch);
 };

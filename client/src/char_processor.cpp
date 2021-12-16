@@ -25,8 +25,12 @@ CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState & imstat
             input_event = true;
             break;
         default:
-            if (isprint(ch))
+            if (isprint(ch) && additionalFilter(ch))
                 input_event = true;
     }
     return input_event ? ActionType::Input : ActionType::BadKey;
+}
+
+bool CursesChProcessor::additionalFilter(const int ch) {
+    return ch >= std::numeric_limits<char>::min() && ch <= std::numeric_limits<char>::max();
 }

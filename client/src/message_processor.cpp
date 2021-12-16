@@ -13,6 +13,10 @@ void MessageProcessor::operator()(ImmutableState & imstate, MutableState & mstat
             mstate.addChar(static_cast<char>(message.data));
         movePos(mstate, old_pos, message.pos, message.data);
 
+        // пример дебага
+        // move(50, 0);
+        // printw("Debug message....");
+
     } else if (msg.type == Message::Type::diff) {
         auto message = DiffMessage(msg.data);
         mstate.getData();

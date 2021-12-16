@@ -1,5 +1,6 @@
 template <typename Executer>
 bool MessageProcessor<Executer>::operator()(const std::vector<char>& data, const int fd, const std::unordered_set<int> & all_fds) {
+    // TODO: преобразовать массив char'ов в строку без лишнего копирования
     const std::string s(data.begin(), data.end());
     auto message = Message(s);
     switch (message.type) {
@@ -46,7 +47,9 @@ bool MessageProcessor<Executer>::processGetAll(const int fd) {
     auto message = GetAllMessage(imstate, mstate);
     auto msg = message.buildMessage();
     auto packet = msg.buildPacket();
-    if (send(fd, packet.data(), packet.size(), 0) == -1)
+    if (send(fd, packet.data(), packet.size(), 0) == -1) {
         std::cout << "Can't send data to client\n";
+        return false;
+    }
     return true;
 }
