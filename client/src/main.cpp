@@ -51,7 +51,7 @@ int main() {
             {
                 std::unique_lock lp(printer_mutex);
                 std::shared_lock l(states_mutex);
-                printer.printAll(imstate, mstate);
+                printer.printAll(imstate, mstate, false);
             }
         }
     };
@@ -67,7 +67,7 @@ int main() {
         {
             std::unique_lock lp(printer_mutex);
             std::shared_lock l(states_mutex);
-            printer.printAll(imstate, mstate, false);
+            printer.printAll(imstate, mstate, true);
         }
     }
 
