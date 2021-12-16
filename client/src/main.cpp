@@ -60,10 +60,13 @@ int main()
     auto fut = std::async(std::launch::async, input_proc_task);
 
     while (true) {
-        auto msg = client.recvMessage();
-        {
+        Message msg;
+        try {
+            msg = client.recvMessage();
             std::unique_lock l(states_mutex);
             msg_processor(imstate, mstate, msg);
+        } catch (boost::archive::archive_exception & e) {
+            // в recvRawMessage отрабатывает recv с говном на входе при resize в i3
         }
         {
             std::unique_lock lp(printer_mutex);
