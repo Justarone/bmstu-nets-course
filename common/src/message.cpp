@@ -11,7 +11,7 @@ void Message::serialize(Archive& ar, const unsigned int version)
 Message::Message(const std::string& s)
 {
     std::istringstream ins(s);
-    boost::archive::text_iarchive in(ins);
+    boost::archive::binary_iarchive in(ins);
     in >> *this;
 }
 
@@ -25,7 +25,7 @@ std::string Message::buildPacket() const
 {
     std::ostringstream outs;
 
-    boost::archive::text_oarchive out(outs);
+    boost::archive::binary_oarchive out(outs);
     out << *this;
     auto res = outs.str();
 
@@ -45,7 +45,7 @@ void AddCharMessage::serialize(Archive& ar, const unsigned int version)
 AddCharMessage::AddCharMessage(const std::string& s)
 {
     std::istringstream ins(s);
-    boost::archive::text_iarchive in(ins);
+    boost::archive::binary_iarchive in(ins);
     in >> *this;
 }
 
@@ -58,7 +58,7 @@ AddCharMessage::AddCharMessage(const int data, const std::size_t pos)
 Message AddCharMessage::buildMessage() const
 {
     std::ostringstream outs;
-    boost::archive::text_oarchive out(outs);
+    boost::archive::binary_oarchive out(outs);
     out << *this;
     return Message { Message::Type::addChar, outs.str() };
 }
@@ -77,14 +77,14 @@ DiffMessage::DiffMessage(const std::vector<std::string>& diff)
 DiffMessage::DiffMessage(const std::string& s)
 {
     std::istringstream ins(s);
-    boost::archive::text_iarchive in(ins);
+    boost::archive::binary_iarchive in(ins);
     in >> *this;
 }
 
 Message DiffMessage::buildMessage() const
 {
     std::ostringstream outs;
-    boost::archive::text_oarchive out(outs);
+    boost::archive::binary_oarchive out(outs);
     out << *this;
     return Message { Message::Type::diff, outs.str() };
 }
@@ -99,14 +99,14 @@ void GetAllMessage::serialize(Archive& ar, const unsigned int version)
 GetAllMessage::GetAllMessage(const std::string& s)
 {
     std::istringstream ins(s);
-    boost::archive::text_iarchive in(ins);
+    boost::archive::binary_iarchive in(ins);
     in >> *this;
 }
 
 Message GetAllMessage::buildMessage() const
 {
     std::ostringstream outs;
-    boost::archive::text_oarchive out(outs);
+    boost::archive::binary_oarchive out(outs);
     out << *this;
     return Message { Message::Type::getAll, outs.str() };
 }

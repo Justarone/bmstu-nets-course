@@ -33,5 +33,5 @@ CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState& imstate
 
 bool CursesChProcessor::additionalFilter(const int ch)
 {
-    return ch >= std::numeric_limits<char>::min() && ch <= std::numeric_limits<char>::max();
+    return ch >= 0 && ch <= std::numeric_limits<char>::max();
 }
