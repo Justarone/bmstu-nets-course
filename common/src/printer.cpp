@@ -1,7 +1,8 @@
 #include "printer.h"
 #include <fstream>
 
-void CursesPrinter::printAll(ImmutableState & istate, const MutableState & mstate, bool moveToActual) const {
+void CursesPrinter::printAll(ImmutableState& istate, const MutableState& mstate, bool moveToActual) const
+{
     std::size_t lines = std::max(1, getmaxy(stdscr));
 
     if (moveToActual && istate.linesToShow() > lines - 1)
@@ -22,5 +23,3 @@ void CursesPrinter::printAll(ImmutableState & istate, const MutableState & mstat
 
     refresh();
 }
-
-

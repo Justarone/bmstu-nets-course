@@ -1,7 +1,8 @@
 #include "message_processor.h"
 #include <curses.h>
 
-void MessageProcessor::operator()(ImmutableState & imstate, MutableState & mstate, Message msg) {
+void MessageProcessor::operator()(ImmutableState& imstate, MutableState& mstate, Message msg)
+{
     if (msg.type == Message::Type::addChar) {
         const auto message = AddCharMessage(msg.data);
         const auto old_pos = mstate.getCurpos();
@@ -24,7 +25,8 @@ void MessageProcessor::operator()(ImmutableState & imstate, MutableState & mstat
     }
 }
 
-void MessageProcessor::movePos(MutableState & mstate, const std::size_t old_pos, const std::size_t pos, const int data) {
+void MessageProcessor::movePos(MutableState& mstate, const std::size_t old_pos, const std::size_t pos, const int data)
+{
     std::size_t new_pos;
     if (data == KEY_BACKSPACE || data == 127 || data == KEY_DC)
         new_pos = (old_pos >= pos && old_pos > 0) ? old_pos - 1 : old_pos;

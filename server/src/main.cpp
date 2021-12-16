@@ -1,12 +1,13 @@
-#include <signal.h>
-#include "server.h"
-#include "message_processor.h"
 #include "executer.h"
+#include "message_processor.h"
+#include "server.h"
+#include <signal.h>
 
 #define PORT 3000
 
-int main() {
-    auto handler = (struct sigaction){SIG_IGN};
+int main()
+{
+    auto handler = (struct sigaction) { SIG_IGN };
     sigaction(SIGPIPE, &handler, NULL);
 
     Server::TRequestHandler request_handler = MessageProcessor<BoostExecuter>();

@@ -2,3 +2,5 @@
 *.o
 *.txt
 main
+
+.vscode

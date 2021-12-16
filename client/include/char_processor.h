@@ -1,8 +1,8 @@
 #pragma once
-#include <curses.h>
+#include "executer.h"
 #include "immutable_state.h"
 #include "mutable_state.h"
-#include "executer.h"
+#include <curses.h>
 
 class CursesChProcessor {
 public:
@@ -13,7 +13,8 @@ public:
         Exit,
         Exec
     };
-    ActionType process(ImmutableState & istate, MutableState & mstate, const int ch) const;
+    ActionType process(ImmutableState& istate, MutableState& mstate, const int ch) const;
+
 private:
     static bool additionalFilter(const int ch);
 };

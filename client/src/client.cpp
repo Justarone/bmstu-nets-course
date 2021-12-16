@@ -1,6 +1,7 @@
 #include "client.h"
 
-Client::Client(const std::string & host, const int port) {
+Client::Client(const std::string& host, const int port)
+{
     sfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sfd == -1)
         throw std::runtime_error("socket call error");
@@ -16,11 +17,13 @@ Client::Client(const std::string & host, const int port) {
         throw std::runtime_error("connect call error");
 }
 
-Client::~Client() {
+Client::~Client()
+{
     close(sfd);
 }
 
-std::pair<ImmutableState, MutableState> Client::requestStates() const {
+std::pair<ImmutableState, MutableState> Client::requestStates() const
+{
     auto request = GetAllMessage({}, {});
     const auto request_message = request.buildMessage();
     auto packet = request_message.buildPacket();
@@ -41,7 +44,8 @@ std::pair<ImmutableState, MutableState> Client::requestStates() const {
     return { final_message.imstate, final_message.mstate };
 }
 
-void Client::sendMessage(const int ch, const std::size_t pos) {
+void Client::sendMessage(const int ch, const std::size_t pos)
+{
     const auto add_char_message = AddCharMessage(ch, pos);
     const auto message = add_char_message.buildMessage();
     const auto packet = message.buildPacket();
@@ -49,12 +53,14 @@ void Client::sendMessage(const int ch, const std::size_t pos) {
         throw std::runtime_error("Can't send packet");
 }
 
-Message Client::recvMessage() const {
+Message Client::recvMessage() const
+{
     const auto data = recvRawMessage();
     return { data };
 }
 
-std::string Client::recvRawMessage() const {
+std::string Client::recvRawMessage() const
+{
     char buf[4];
     std::size_t bytes = recv(sfd, &buf, sizeof(buf), 0);
 

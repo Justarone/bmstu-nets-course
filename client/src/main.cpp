@@ -1,23 +1,24 @@
+#include <arpa/inet.h>
 #include <bits/stdc++.h>
 #include <curses.h>
-#include <sstream>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <future>
 #include <mutex>
+#include <signal.h>
+#include <sstream>
+#include <sys/socket.h>
+#include <unistd.h>
 
-#include "mutable_state.h"
-#include "immutable_state.h"
-#include "executer.h"
-#include "printer.h"
-#include "message.h"
-#include "helpers.h"
 #include "client.h"
+#include "executer.h"
+#include "helpers.h"
+#include "immutable_state.h"
+#include "message.h"
 #include "message_processor.h"
+#include "mutable_state.h"
+#include "printer.h"
 
-int main() {
+int main()
+{
     Client client("127.0.0.1", 3000);
 
     std::shared_mutex states_mutex, printer_mutex;
@@ -50,9 +51,7 @@ int main() {
             if (action_type == CursesChProcessor::ActionType::Input) {
                 client.sendMessage(ch, pos);
                 printer.printAll(imstate, mstate, true);
-            }
-            else if (action_type == CursesChProcessor::ActionType::Scroll)
-            {
+            } else if (action_type == CursesChProcessor::ActionType::Scroll) {
                 printer.printAll(imstate, mstate, false);
             }
         }
