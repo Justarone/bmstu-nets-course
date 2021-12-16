@@ -41,7 +41,6 @@ void Server::processNewConnection()
     memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
     const int client_fd = accept(listen_socket_fd, (struct sockaddr*)&addr, &len);
     if (client_fd == -1) {
-        perror("accept call error");
         throw std::runtime_error("accept call error");
     }
 
