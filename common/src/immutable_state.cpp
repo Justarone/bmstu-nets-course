@@ -11,7 +11,6 @@ std::size_t ImmutableState::printLines(
         clrtoeol();
         printw("%s", data[i + startline].c_str());
     }
-    refresh();
     return limit;
 }
 

@@ -1,40 +1,32 @@
 #include "char_processor.h"
+#include <iostream>
 
 CursesChProcessor::ActionType CursesChProcessor::process(ImmutableState & imstate, MutableState & mstate, const int ch) const {
     bool input_event = false;
 
     switch (ch)
     {
-        case KEY_F(4):
-            return ActionType::Exit;
         case KEY_UP:
             imstate.moveUp();
-            break;
+            return ActionType::Scroll;
         case KEY_DOWN:
             imstate.moveDown();
-            break;
+            return ActionType::Scroll;
         case KEY_LEFT:
             mstate.moveLeft();
-            input_event = true;
-            break;
+            return ActionType::Scroll;
         case KEY_RIGHT:
             mstate.moveRight();
-            input_event = true;
-            break;
+            return ActionType::Scroll;
         case KEY_DC:
         case 127:
         case KEY_BACKSPACE:
-            mstate.removeChar();
+        case '\n':
             input_event = true;
             break;
-        case '\n': {
-            return ActionType::Exec;
-            break;
-        }
         default:
             if (isprint(ch))
-                mstate.addChar(ch);
-            input_event = true;
+                input_event = true;
     }
-    return input_event ? ActionType::Input : ActionType::Scroll;
+    return input_event ? ActionType::Input : ActionType::BadKey;
 }

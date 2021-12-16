@@ -5,7 +5,6 @@
 
 #define PORT 3000
 
-
 int main() {
     auto handler = (struct sigaction){SIG_IGN};
     sigaction(SIGPIPE, &handler, NULL);

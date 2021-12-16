@@ -19,6 +19,9 @@ public:
     void moveLeft(const std::size_t diff = 1);
     void moveRight(const std::size_t diff = 1);
     std::string getData();
+    const std::string & getText() const {
+        return data;
+    }
 private:
     friend class boost::serialization::access;
     template <typename Archive>

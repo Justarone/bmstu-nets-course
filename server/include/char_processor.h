@@ -7,7 +7,7 @@
 class CursesChProcessor {
 public:
     enum class ActionType {
-        Scroll,
+        BadKey,
         Input,
         Exit,
         Exec

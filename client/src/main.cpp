@@ -11,7 +11,6 @@
 #include "mutable_state.h"
 #include "immutable_state.h"
 #include "executer.h"
-#include "char_processor.h"
 #include "printer.h"
 #include "message.h"
 #include "helpers.h"
@@ -25,8 +24,10 @@ int main() {
     auto [imstate, mstate] = client.requestStates();
 
     CursesPrinter printer;
-    //CursesChProcessor processor;
+    CursesChProcessor processor;
     MessageProcessor msg_processor;
+
+    printer.printAll(imstate, mstate);
 
     initscr();
     noecho();
@@ -35,13 +36,27 @@ int main() {
     const auto input_proc_task = [&]() {
         while (true) {
             int ch = getch();
-            client.sendMessage(ch, mstate.getCurpos());
+            CursesChProcessor::ActionType action_type;
+            std::size_t pos = 0;
+            {
+                std::unique_lock l(states_mutex);
+                action_type = processor.process(imstate, mstate, ch);
+                // можно делать под shared_lock
+                pos = mstate.getCurpos();
+            }
+
+            if (action_type == CursesChProcessor::ActionType::Input)
+                client.sendMessage(ch, pos);
+            else if (action_type == CursesChProcessor::ActionType::Scroll)
+            {
+                std::unique_lock lp(printer_mutex);
+                std::shared_lock l(states_mutex);
+                printer.printAll(imstate, mstate);
+            }
         }
     };
 
     auto fut = std::async(std::launch::async, input_proc_task);
-
-    printer.printAll(imstate, mstate);
 
     while (true) {
         auto msg = client.recvMessage();
@@ -50,9 +65,9 @@ int main() {
             msg_processor(imstate, mstate, msg);
         }
         {
-            std::shared_lock l(states_mutex);
             std::unique_lock lp(printer_mutex);
-            printer.printAll(imstate, mstate, CursesChProcessor::ActionType::Input);
+            std::shared_lock l(states_mutex);
+            printer.printAll(imstate, mstate, false);
         }
     }
 

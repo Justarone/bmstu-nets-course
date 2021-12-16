@@ -21,8 +21,6 @@ bool MessageProcessor<Executer>::processAddChar(const Message & msg, const int f
 
     std::string packet;
     if (res == CursesChProcessor::ActionType::Exec) {
-        packet = msg.buildPacket();
-    } else {
         auto command = mstate.getData();
         auto res = executer.execute(command);
 
@@ -33,9 +31,13 @@ bool MessageProcessor<Executer>::processAddChar(const Message & msg, const int f
         auto diffMessage = DiffMessage(res);
         auto message = diffMessage.buildMessage();
         packet = message.buildPacket();
+    } else {
+        packet = msg.buildPacket();
     }
 
-    broadcastPacket(packet, all_fds);
+    if (res != CursesChProcessor::ActionType::BadKey)
+        broadcastPacket(packet, all_fds);
+
     return true;
 }
 

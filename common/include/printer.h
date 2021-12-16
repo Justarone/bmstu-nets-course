@@ -6,8 +6,5 @@
 
 class CursesPrinter {
 public:
-    void printAll(
-        ImmutableState & istate,
-        const MutableState & mstate,
-        CursesChProcessor::ActionType action_type = CursesChProcessor::ActionType::Input) const;
+    void printAll(ImmutableState & istate, const MutableState & mstate, bool moveToActual = true) const;
 };

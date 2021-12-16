@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include <curses.h>
 
 void broadcastPacket(const std::string & packet, const std::unordered_set<int> & all_fds) {
     for (const auto & fd : all_fds) {
@@ -20,4 +21,8 @@ std::uint32_t char_to_size(const char buf[4]) {
 void size_to_char(std::uint32_t size, char * buf) {
     for (int i = 0; i < 4; i++, size >>= 8)
         buf[i] = size & 0xff;
+}
+
+bool is_backspace(const int ch) {
+    return ch == KEY_BACKSPACE || ch == KEY_DC || ch == 127;
 }

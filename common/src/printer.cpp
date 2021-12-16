@@ -1,9 +1,10 @@
 #include "printer.h"
+#include <fstream>
 
-void CursesPrinter::printAll(
-        ImmutableState & istate, const MutableState & mstate, CursesChProcessor::ActionType action_type) const {
+void CursesPrinter::printAll(ImmutableState & istate, const MutableState & mstate, bool moveToActual) const {
     std::size_t lines = std::max(1, getmaxy(stdscr));
-    if (action_type == CursesChProcessor::ActionType::Input && istate.linesToShow() > lines - 1)
+
+    if (moveToActual && istate.linesToShow() > lines - 1)
         istate.setLinesToShow(lines - 1);
     auto printed = istate.printLines(lines);
 
@@ -14,10 +15,11 @@ void CursesPrinter::printAll(
 
     if (printed < lines) {
         mstate.printLine(printed);
-        move(printed, PROMPT_SIZE + mstate.getCurpos());
     } else {
         move(0, 0);
     }
+
+    refresh();
 }
 
 
