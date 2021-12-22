@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+  arch:
+    image: myarch
+    command: ["/bin/bash"]
+    tty: true
+    volumes:
+      - ./:/src
+    ports:
+      - "3000:3000"
